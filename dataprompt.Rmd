@@ -1,0 +1,106 @@
+---
+ 
+
+```{r}
+hr = read.csv("Copy of hr_churn_data.csv")
+```
+```
+```{r}
+str(hr)
+```
+```{r}
+install.packages("caTools")
+install.packages("ROCR")
+library(caTools)
+library(ROCR)
+```
+```{r}
+set.seed(123)
+split = sample.split(hr$Attrition, SplitRatio = 0.75)
+
+head(split)
+
+train = hr[split == TRUE,]
+test = hr[split == FALSE,]
+
+#head(train)
+
+summary(train$TSFD)
+# Q1: 16.00
+# Q3: 50.00
+# Mean: 34.37
+summary(test$TSFD)
+# Q1: 16.00
+# Q3: 47.00
+# Mean: 34.01
+
+nrow(train)/nrow(bd)
+#0.7513
+table(train$Donation)/nrow(train)
+# 0: 0.7616 and 1: 0.2384
+table(test$Donation)/nrow(test)
+# 0: 0.7634 and 1: 0.2366
+# yes the relationship between these percentages was to be expected, they are similar. 
+
+#(2) Frequency and Total_donation should not be included together in the logistic regression BECAUSE
+
+
+logreg = glm(Attrition ~ Age + BusinessTravel + DailyRate + Department +DistanceFromHome +Education + EducationField +EmployeeCount + EmployeeNumber +EnvironmentSatisfaction + Gender + HourlyRate +JobInvolvement + JobLevel + JobRole + JobSatisfaction + MaritalStatus +MonthlyIncome +MonthlyRate + NumCompaniesWorked + OverTime + PercentSalaryHike + PerformanceRating +	RelationshipSatisfaction +	StandardHours +	StockOptionLevel + TotalWorkingYears +	TrainingTimesLastYear +	WorkLifeBalance +	YearsAtCompany +	YearsInCurrentRole +	YearsSinceLastPromotion +	YearsWithCurrManager, data=train, family="binomial")
+
+summary(logreg)
+
+# *** BusinessTravelTravel_Frequently 
+# *   BusinessTravelTravel_Rarely 
+# **  DistanceFromHome 
+# *** EnvironmentSatisfaction
+# *   GenderMale
+# **  JobInvolvement 
+# *   JobRoleLaboratory Technician 
+# **  JobSatisfaction
+# **  MaritalStatusSingle
+# *   NumCompaniesWorked 
+# *** OverTimeYes 
+# **  RelationshipSatisfaction 
+# *   YearsAtCompany                    
+# **  YearsInCurrentRole               
+# *   YearsSinceLastPromotion            
+# **  YearsWithCurrManager
+```
+```{r}
+threshold = 0.30
+test$predProbs = predict(logreg, newdata=test, type="response")
+test$predAttrition = ifelse(test$predProbs >= threshold, 1, 0)
+
+roc.pred = prediction(test$predProbs, test$Attrition)
+perf = performance(roc.pred, "tpr", "fpr")
+
+plot(perf,                      # the data
+     main = "ROC Curve",        # the chart's title
+     xlab = "1 - Specificity",  # the name of the x-axis
+     ylab = "Sensitivity",      # the name of the y-axis
+     colorize=TRUE)             # add color to curve depending on threshold prob.
+abline(0,1) 
+
+perf_auc = performance(roc.pred, "auc")
+as.numeric(perf_auc@y.values)
+
+# start of #5 - confusion matrix
+table(test$Attrition, test$predAttrition)
+
+# Accuracy?
+(188 + 26)/nrow(test)
+#0.856
+
+# Sensitivity?
+26 / (26+16)
+#0.619
+
+# Specificity?
+188 / (188 + 20)
+#0.9038462
+```
+```{r}
+
+```
+
+
