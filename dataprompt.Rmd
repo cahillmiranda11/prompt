@@ -25,24 +25,7 @@ test = hr[split == FALSE,]
 
 #head(train)
 
-summary(train$TSFD)
-# Q1: 16.00
-# Q3: 50.00
-# Mean: 34.37
-summary(test$TSFD)
-# Q1: 16.00
-# Q3: 47.00
-# Mean: 34.01
 
-nrow(train)/nrow(bd)
-#0.7513
-table(train$Donation)/nrow(train)
-# 0: 0.7616 and 1: 0.2384
-table(test$Donation)/nrow(test)
-# 0: 0.7634 and 1: 0.2366
-# yes the relationship between these percentages was to be expected, they are similar. 
-
-#(2) Frequency and Total_donation should not be included together in the logistic regression BECAUSE
 
 
 logreg = glm(Attrition ~ Age + BusinessTravel + DailyRate + Department +DistanceFromHome +Education + EducationField +EmployeeCount + EmployeeNumber +EnvironmentSatisfaction + Gender + HourlyRate +JobInvolvement + JobLevel + JobRole + JobSatisfaction + MaritalStatus +MonthlyIncome +MonthlyRate + NumCompaniesWorked + OverTime + PercentSalaryHike + PerformanceRating +	RelationshipSatisfaction +	StandardHours +	StockOptionLevel + TotalWorkingYears +	TrainingTimesLastYear +	WorkLifeBalance +	YearsAtCompany +	YearsInCurrentRole +	YearsSinceLastPromotion +	YearsWithCurrManager, data=train, family="binomial")
